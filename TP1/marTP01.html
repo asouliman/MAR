@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+	<head>
+		<title>MAR 2014 - TP1 by RC&FL</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style> body { margin: 0; } canvas { width: 100%; height: 100% } </style>
+	</head>
+	<body>
+
+		<!-- include -->
+		<script src="js/three.min.js"></script>
+		<script src="js/ThreeRenderingEnv.js"></script>
+		<script src="js/ThreeLightingEnv.js"></script>
+		<script src="js/blobul.js"></script>
+
+		<script>
+
+			// global vars
+			//----------------------------------------------------------------------------
+			var RC =  new ThreeRenderingEnv();
+			var Lights = new ThreeLightingEnv('rembrandt','bicolor','spot',RC);
+
+			// bubul
+			var bubul = blobul('phong',{ color: 0x808080, specular: 0xFFFFFF, shininess: 5 });
+			RC.addToScene( bubul );
+
+
+			// ground
+			var ground = new THREE.Mesh(
+				new THREE.BoxGeometry( 100, 1, 100 ),
+				new THREE.MeshPhongMaterial( {color: 0x808080} )
+			);
+			ground.receiveShadow = true;
+			ground.position.y = -20;
+			RC.addToScene( ground );
+
+			RC.camera.position.z = 30;
+			RC.camera.position.y = 30;
+			RC.camera.rotation.x = -45*3.14/180;
+
+			// event listener
+			window.addEventListener( 'resize', onWindowResize, false );
+
+
+			console.log('-----------------')
+
+
+			// window resize
+
+			function  onWindowResize() {
+				console.log('-- callback:resize: window size ->'+window.innerWidth+'x'+window.innerHeight+'p');
+				RC.onWindowResize(window.innerWidth,window.innerHeight);
+			}
+
+			function render() {
+				requestAnimationFrame( render );
+				bubul.rotation.x += 0.005;
+				bubul.rotation.y += 0.01;
+				RC.renderer.render(RC.scene, RC.camera);
+			};
+
+			render();
+		</script>
+	</body>
+</html>
