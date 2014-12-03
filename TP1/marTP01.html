@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>MAR 2014 - TP1 by RC&FL</title>
+		<title>MAR 2014 - TP1</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style> body { margin: 0; } canvas { width: 100%; height: 100% } </style>
@@ -12,52 +12,72 @@
 		<script src="js/three.min.js"></script>
 		<script src="js/ThreeRenderingEnv.js"></script>
 		<script src="js/ThreeLightingEnv.js"></script>
-		<script src="js/blobul.js"></script>
 
 		<script>
 
 			// global vars
 			//----------------------------------------------------------------------------
-			var RC =  new ThreeRenderingEnv();
-			var Lights = new ThreeLightingEnv('rembrandt','bicolor','spot',RC);
+			var Env =  new ThreeRenderingEnv();
+			var Lights = new ThreeLightingEnv('rembrandt', 'bicolor', 'spot', Env);
 
-			// bubul
-			var bubul = blobul('phong',{ color: 0x808080, specular: 0xFFFFFF, shininess: 5 });
-			RC.addToScene( bubul );
+			var geometry = new THREE.CylinderGeometry(2, 2, 20, 32);
+			var material = new THREE.MeshPhongMaterial({ color: 0x808080, specular: 0xFFFFFF, shininess: 5 });
 
+			// Cylinder
+			var cylinderGeometry = new THREE.CylinderGeometry(2, 2, 20, 32);
+			var cylinder = new THREE.Mesh(cylinderGeometry, material);
+			cylinder.position.x = 0;
 
-			// ground
-			var ground = new THREE.Mesh(
-				new THREE.BoxGeometry( 100, 1, 100 ),
-				new THREE.MeshPhongMaterial( {color: 0x808080} )
-			);
-			ground.receiveShadow = true;
-			ground.position.y = -20;
-			RC.addToScene( ground );
+			// TorusPivot: "invisible" element set at the cylinder's center
+			// Used to make the torus rotate around the cylinder
+			var torusPivot = new THREE.Object3D();
+			cylinder.add(torusPivot);
 
-			RC.camera.position.z = 30;
-			RC.camera.position.y = 30;
-			RC.camera.rotation.x = -45*3.14/180;
+			// Torus
+			var torusGeometry = new THREE.TorusGeometry(15, 2, 16, 100);
+			var torus = new THREE.Mesh(torusGeometry, material);
+			// Set at -30 units from the cylinder
+			torus.position.x = -30;
+			// Add it to the torus for the rotation
+			torusPivot.add(torus);
+
+			// CubePivot
+			var cubePivot = new THREE.Object3D();
+			cubePivot.position.x = -15;
+			torus.add(cubePivot);
+
+			// Cube
+			var cubeGeometry = new THREE.BoxGeometry(5, 5, 5);
+			var cube = new THREE.Mesh(cubeGeometry, material);
+			cube.position.x = 10;
+			cubePivot.add(cube);
+
+			Env.addToScene(cylinder);
+			Env.addToScene(torusPivot);
+
+			Env.camera.position.z = 50;
+			Env.camera.position.y = 30;
+			Env.camera.rotation.x = -45*3.14/180;
 
 			// event listener
-			window.addEventListener( 'resize', onWindowResize, false );
-
+			window.addEventListener('resize', onWindowResize, false);
 
 			console.log('-----------------')
 
-
 			// window resize
 
-			function  onWindowResize() {
-				console.log('-- callback:resize: window size ->'+window.innerWidth+'x'+window.innerHeight+'p');
-				RC.onWindowResize(window.innerWidth,window.innerHeight);
+			function onWindowResize() {
+				console.log('-- callback:resize: window size ->' + window.innerWidth + 'x'+window.innerHeight + 'p');
+				Env.onWindowResize(window.innerWidth, window.innerHeight);
 			}
 
 			function render() {
-				requestAnimationFrame( render );
-				bubul.rotation.x += 0.005;
-				bubul.rotation.y += 0.01;
-				RC.renderer.render(RC.scene, RC.camera);
+				requestAnimationFrame(render);
+				cylinder.rotation.x += 0.05;
+				torusPivot.rotation.y += 0.01;
+				torus.rotation.y -= 0.01;
+				cubePivot.rotation.y += 0.1;
+				Env.renderer.render(Env.scene, Env.camera);
 			};
 
 			render();

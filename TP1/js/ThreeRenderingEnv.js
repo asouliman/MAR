@@ -3,7 +3,7 @@
 // ANavPlane
 //----------------------------------------------------------------------------------------
 // constructor
-function ThreeRenderingEnv(){
+function ThreeRenderingEnv() {
 	// attributes
 	// --------------------------------------
 	// scene
@@ -20,7 +20,7 @@ function ThreeRenderingEnv(){
 	this.renderer.shadowMapEnabled = true;
 	this.renderer.shadowMapType = THREE.PCFShadowMap;
 	// render size
-	this.renderer.setSize( window.innerWidth, window.innerHeight ); 
+	this.renderer.setSize(window.innerWidth, window.innerHeight); 
 
 
 	// init
@@ -40,6 +40,4 @@ function ThreeRenderingEnv(){
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize( w, h );
 	}
-
-
 }
