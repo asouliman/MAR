@@ -36,6 +36,18 @@ Car.prototype.setPosition = function (x, y, z) {
 	this.position.position.set(x, y, z);
 };
 
+Car.prototype.getX = function() {
+	return this.position.position.x;
+};
+
+Car.prototype.getY = function() {
+	return this.position.position.y;
+};
+
+Car.prototype.getZ = function() {
+	return this.position.position.z;
+};
+
 Car.prototype.getRotationZ = function() {
 	return this.rotationZ;
 };

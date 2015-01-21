@@ -18,20 +18,16 @@ requirejs(['ModulesLoaderV2.js'], function() {
 });
 
 function main() {
-	//	----------------------------------------------------------------------------
-	//	MAR 2014 - nav test
-	//	author(s) : Cozot, R. and Lamarche, F.
-	//	date : 11/16/2014
-	//	last : 11/25/2014
-	//	----------------------------------------------------------------------------
-	//	global vars
-	//	----------------------------------------------------------------------------
-	// car Position
+
+	// Default settings
+
+	// Car position
 	var CARx = -220;
 	var CARy = 0;
 	var CARz = 0;
 	var CARtheta = 0;
-	// car speed
+
+	// Car speed
 	var dt = 0.05;
 	var dx = 1.0;
 
@@ -41,13 +37,13 @@ function main() {
 		zAngle: CARtheta + Math.PI / 2.0,
 	});
 
-	//	rendering env
+	// rendering env
 	var RC = new ThreeRenderingEnv();
 
-	//	lighting env
+	// lighting env
 	var Lights = new ThreeLightingEnv('rembrandt', 'neutral', 'spot', RC, 5000);
 
-	//	Loading env
+	// Loading env
 	var Loader = new ThreeLoadingEnv();
 
 	var NAV = new navPlaneSet();
@@ -61,19 +57,19 @@ function main() {
 	initialize();
 	step();
 
-	//	window resize
+	// window resize
 	function onWindowResize() {
 		RC.onWindowResize(window.innerWidth, window.innerHeight);
 	}
 
-	function initialize () {
-		//	Meshes
+	function initialize() {
+		// Meshes
 		Loader.loadMesh('assets', 'border_Zup_02', 'obj', RC.scene, 'border', -340, -340, 0, 'front');
 		Loader.loadMesh('assets', 'ground_Zup_03', 'obj', RC.scene, 'ground', -340, -340, 0, 'front');
 		Loader.loadMesh('assets', 'circuit_Zup_02', 'obj', RC.scene, 'circuit', -340, -340, 0, 'front');
 		Loader.loadMesh('assets', 'arrivee_Zup_01', 'obj', RC.scene, 'decors', -340, -340, 0, 'front');
 
-		//	Skybox
+		// Skybox
 		Loader.loadSkyBox('assets/maps', ['px', 'nx', 'py', 'ny', 'pz', 'nz'], 'jpg', RC.scene, 'sky', 4000);
 
 		var carMesh = Loader.load({
@@ -95,7 +91,7 @@ function main() {
 
 		createNav();
 
-		//	resize window
+		// Resize window
 		window.addEventListener('resize', onWindowResize, false);
 	}
 
@@ -150,8 +146,8 @@ function main() {
 		RC.renderer.render(RC.scene, RC.camera);
 	};
 
-	function createNav () {
-		//	Planes Set for Navigation
+	function createNav() {
+		// Planes Set for Navigation
 		// 	z up
 		NAV = new navPlaneSet(new navPlane('p01', -260, -180, -80, 120, +0, +0, 'px')); // 01
 		NAV.addPlane(new navPlane('p02', -260, -180, 120, 200, +0, +20, 'py')); // 02

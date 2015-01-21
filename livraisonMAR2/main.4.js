@@ -1,37 +1,33 @@
 /**
-*  ThreeJS test file using the ThreeRender class
-*/
+ *  ThreeJS test file using the ThreeRender class
+ */
 //Loads all dependencies
 requirejs(['ModulesLoaderV2.js'], function() {
 	// Level 0 includes
 	ModulesLoader.requireModules(["threejs/three.min.js"]);
 	ModulesLoader.requireModules([
-	"myJS/ThreeLightingEnv.js",
-	"myJS/ThreeLoadingEnv.js",
-	"myJS/navZ.js",
-	"myJS/CameraManager.js",
-	"myJS/Keyboard.js",
-	"myJS/Car.js",
-	"FlyingVehicle.js"
+		"myJS/ThreeLightingEnv.js",
+		"myJS/ThreeLoadingEnv.js",
+		"myJS/navZ.js",
+		"myJS/CameraManager.js",
+		"myJS/Keyboard.js",
+		"myJS/Car.js",
+		"FlyingVehicle.js"
 	]);
 	// Loads modules contained in includes and starts main function
 	ModulesLoader.loadModules(main);
 });
 
 function main() {
-	//	----------------------------------------------------------------------------
-	//	MAR 2014 - nav test
-	//	author(s) : Cozot, R. and Lamarche, F.
-	//	date : 11/16/2014
-	//	last : 11/25/2014
-	//	----------------------------------------------------------------------------
-	//	global vars
-	//	----------------------------------------------------------------------------
-	// car Position
+
+	// Default settings
+
+	// Car position
 	var CARx = -220;
 	var CARy = 0;
 	var CARz = 0;
 	var CARtheta = 0;
+
 	// car speed
 	var dt = 0.05;
 	var dx = 1.0;
@@ -59,6 +55,10 @@ function main() {
 	// Create the car
 	var car = new Car(CARx, CARy, CARz, CARtheta);
 
+	var lap = -1;
+	var currentNav = 0;
+	var previousNav = 0;
+
 	initialize();
 	step();
 
@@ -67,7 +67,7 @@ function main() {
 		CM.onWindowResize(window.innerWidth, window.innerHeight, CM);
 	}
 
-	function initialize () {
+	function initialize() {
 		//	Meshes
 		Loader.loadMesh('assets', 'border_Zup_02', 'obj', CM.scene, 'border', -340, -340, 0, 'front');
 		Loader.loadMesh('assets', 'ground_Zup_03', 'obj', CM.scene, 'ground', -340, -340, 0, 'front');
@@ -155,13 +155,16 @@ function main() {
 
 		// Updates carRotationZ
 		car.setRotationZ(vehicle.angles.z - Math.PI / 2.0);
+
+		// Count the number of lap
+		countLaps();
 	}
 
 	function render() {
 		CM.renderer.render(CM.scene, CM.getCurrentView());
 	};
 
-	function createNav () {
+	function createNav() {
 		//	Planes Set for Navigation
 		// 	z up
 		NAV = new navPlaneSet(new navPlane('p01', -260, -180, -80, 120, +0, +0, 'px')); // 01
@@ -196,5 +199,21 @@ function main() {
 		NAV.addPlane(new navPlane('p30', -240, -180, -140, -80, +0, +20, 'ny')); // 30
 		NAV.setPos(CARx, CARy, CARz);
 		NAV.initActive();
+	}
+
+	function countLaps() {
+		currentNav = parseInt(NAV.findActive(car.getX(), car.getY()));
+
+		if (previousNav < currentNav) {
+			// Check if the player is going ahead by saving the highest planes he's been on
+			previousNav = currentNav % (NAV.planeSetSize() - 1);
+
+			// Check if the player passed the lap line
+			if (previousNav == 1) {
+				// Increase the lap number
+				lap++;
+				document.getElementById('lapNumber').textContent=lap;
+			}
+		}
 	}
 }
