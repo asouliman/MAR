@@ -39,10 +39,12 @@ var CameraManager = function() {
 	// Cameras
 	this.cameras = [];
 	this.currentCamera = -1;
-	this.cameraToShow = -1;
+	this.cameraToShow = 0;
 
 	// Create the different cameras
 	this.initCamerasData();
+
+	this.scene.add(this.circuitCamera);
 };
 
 
@@ -51,27 +53,25 @@ CameraManager.prototype.addToScene = function(obj3d) {
 };
 
 CameraManager.prototype.initCamerasData = function() {
-
 	// Camera 1
 	this.cameras.push({
-		"positionX": -220.0,
-		"positionZ": 1.0,
-		"positionY": -50.0,
-		"rotations": [{
-			"x": 120.0
-		}]
+		"x": -150.0,
+		"z": 150.0,
+		"y": 20.0
 	});
 
 	// Camera 2
 	this.cameras.push({
-		"positionX": -220.0,
-		"positionZ": 1.0,
-		"positionY": 40.0,
-		"rotations": [{
-			"y": 180.0
-		}, {
-			"x": 120.0
-		}]
+		"x": 100.0,
+		"z": 150.0,
+		"y": 200.0
+	});
+
+	// Camera 3
+	this.cameras.push({
+		"x": 240.0,
+		"z": 150.0,
+		"y": -240.0
 	});
 };
 
@@ -88,31 +88,11 @@ CameraManager.prototype.updateCircuitCamera = function() {
 			this.currentCamera = this.cameraToShow;
 		}
 
-		this.circuitCamera.position.x = this.cameras[this.currentCamera].positionX;
-		this.circuitCamera.position.z = this.cameras[this.currentCamera].positionZ;
-		this.circuitCamera.position.y = this.cameras[this.currentCamera].positionY;
-		var rot;
-
-		// Reset the rotations
-		this.circuitCamera.rotation.x = 0;
-		this.circuitCamera.rotation.y = 0;
-		this.circuitCamera.rotation.z = 0;
-
-		// Camera's rotations
-		for (var obj in this.cameras[this.currentCamera].rotations) {
-			if (this.cameras[this.currentCamera].rotations[obj]) {
-				rot = this.cameras[this.currentCamera].rotations[obj];
-
-				if ("x" in rot) {
-					this.circuitCamera.rotation.x = rot.x * (Math.PI / 180.0);
-				} else if ("y" in rot) {
-					this.circuitCamera.rotation.y = rot.y * (Math.PI / 180.0);
-				} else if ("z" in rot) {
-					this.circuitCamera.rotation.z = rot.z * (Math.PI / 180.0);
-				}
-			}
-		}
+		this.circuitCamera.position.x = this.cameras[this.currentCamera].x;
+		this.circuitCamera.position.z = this.cameras[this.currentCamera].z;
+		this.circuitCamera.position.y = this.cameras[this.currentCamera].y;
 	}
+
 };
 
 CameraManager.prototype.getCurrentView = function() {
