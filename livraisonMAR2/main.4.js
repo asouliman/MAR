@@ -83,7 +83,6 @@ function main() {
 			name: 'carMesh'
 		});
 
-
 		carMesh.position.z = 0.25;
 		carMesh.add(CM.carCamera);
 		CM.addToScene(CM.circuitCamera);

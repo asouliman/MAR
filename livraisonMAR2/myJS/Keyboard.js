@@ -4,6 +4,10 @@ var Keyboard = function () {
 }
 
 Keyboard.keys = {
+	37: 'LEFT',
+	38: 'UP',
+	39: 'RIGHT',
+	40: 'DOWN',
 	48: '0',
 	49: '1',
 	50: '2',
@@ -75,9 +79,13 @@ Keyboard.prototype.update = function() {
 };
 
 Keyboard.prototype.isDown = function (keyName) {
-	return Keyboard.state[keyName];
+	var state = Keyboard.state[keyName.toUpperCase()];
+
+	return state != undefined ? (state === true) : null;
 };
 
 Keyboard.prototype.isUp = function (keyName) {
-	return Keyboard.state[keyName];
+	var state = Keyboard.state[keyName.toUpperCase()];
+
+	return state != undefined ? (state === false) : null;
 };
