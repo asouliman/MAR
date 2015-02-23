@@ -10,6 +10,8 @@ requirejs(['ModulesLoaderV2.js'], function() {
         "myJS/ThreeLoadingEnv.js",
         "myJS/navZ.js",
         "myJS/CameraManager.js",
+        "ParticleSystem.js",
+        "Interpolators.js",
         "myJS/Keyboard.js",
         "myJS/Car.js",
         "myJS/Helicopter.js",
@@ -44,7 +46,12 @@ function main() {
 
     var clock = new THREE.Clock(true);
 
-    var lap = -1;
+    // The different Particle System {engine, emitter}
+    var PS_data = [];
+
+    var particleLifetime = 0.1;
+    var particleSize = 5.0;
+    var lap = 0;
     var currentNav = 0;
     var previousNav = 0;
 
@@ -67,6 +74,11 @@ function main() {
         Loader.loadSkyBox('assets/maps', ['px', 'nx', 'py', 'ny', 'pz', 'nz'], 'jpg', CM.scene, 'sky', 4000);
 
         helicopter.bindCamera(CM.carCamera);
+        PS_data.push(createParticleGenerator());
+        PS_data.push(createParticleGenerator());
+        helicopter.getLeftTurbine().add(PS_data[0].engine.particleSystem);
+        helicopter.getRightTurbine().add(PS_data[1].engine.particleSystem);
+
         CM.addToScene(helicopter.get());
 
         createNav();
@@ -93,15 +105,27 @@ function main() {
         }
         if (keyboard.isDown('Z')) {
             helicopter.speedUp();
+            for (var i = 0; i < PS_data.length; i++) {
+               particleLifetime = Math.min(particleLifetime + 0.01, 0.4);
+               PS_data[i].emitter.lifeTimeInterval = new MathExt.Interval_Class(0.1, particleLifetime);
+               particleSize = Math.min(particleSize + 0.2, 10.0);
+               PS_data[i].emitter.sizeInterval = new MathExt.Interval_Class(2.0, particleSize);
+            }
         }
         if (keyboard.isDown('S')) {
             helicopter.slowDown();
+            for (var i = 0; i < PS_data.length; i++) {
+               particleLifetime = Math.max(particleLifetime - 0.01, 0.05);
+               PS_data[i].emitter.lifeTimeInterval = new MathExt.Interval_Class(0.1, particleLifetime);
+               particleSize = Math.max(particleSize - 0.2, 3.0);
+               PS_data[i].emitter.sizeInterval = new MathExt.Interval_Class(2.0, particleSize);
+            }
         }
 
-        if (keyboard.isDown('0')) {
+        if (keyboard.isDown('p')) {
             CM.currentView = 0;
         }
-        if (keyboard.isDown('1')) {
+        if (keyboard.isDown('o')) {
             CM.currentView = 1;
         }
 
@@ -138,6 +162,14 @@ function main() {
 
         // Count the number of lap
         countLaps();
+
+        // Update lap time
+        document.getElementById('currentLapTime').textContent = clock.getElapsedTime().toFixed(2);
+
+        // Handle particles
+        for (var i = 0; i < PS_data.length; i++) {
+           PS_data[i].engine.animate(0.01, CM.renderer);
+        }
     }
 
     function render() {
@@ -190,10 +222,60 @@ function main() {
 
             // Check if the player passed the lap line
             if (previousNav == 1) {
+               if (lap > 0) {
+                   // Save the lap time
+                   var p = document.createElement('p');
+                   p.innerHTML = "Lap " + lap + " : " + clock.getElapsedTime().toFixed(2);
+                   document.getElementById('lapTimes').appendChild(p);
+               }
+               
                 // Increase the lap number
                 lap++;
                 document.getElementById('lapNumber').textContent = lap;
+
+                // Restart the clock
+                clock = new THREE.Clock(true);
             }
         }
     }
+
+    function createParticleGenerator() {
+      // Particle System Engine
+      var PS_Engine = new ParticleSystem.Engine_Class({
+         textureFile: 'assets/particles/particle.png',
+         particlesCount: 5000,
+         blendingMode: THREE.AdditiveBlending
+      });
+
+      // Cone Emitter
+      var PS_ConeEmitter = new ParticleSystem.ConeEmitter_Class({
+         // Description of the emitter shape
+         cone: {
+            center: new THREE.Vector3(0, 0, 0),
+            height: new THREE.Vector3(0, -1, 0),
+            radius: 0.01,
+            flow: 500
+         },
+         // Description of the particles characteristics
+         particle: {
+            speed: new MathExt.Interval_Class(50, 100),
+            mass: new MathExt.Interval_Class(0.1, 0.3),
+            size:	new MathExt.Interval_Class(2.0, particleSize),
+            lifeTime: new MathExt.Interval_Class(0.05, particleLifetime)
+         }
+      });
+
+      var linearInterpolator = new Interpolators.Linear_Class(1.0, 0.0);
+      var startColor = new THREE.Color("white");
+      var endColor = new THREE.Color("red");
+
+      PS_Engine.addEmitter(PS_ConeEmitter);
+      PS_Engine.addModifier(new ParticleSystem.LifeTimeModifier_Class());
+      // PS_Engine.addModifier(new ParticleSystem.ForceModifier_Weight_Class());
+      // PS_Engine.addModifier(new ParticleSystem.OpacityModifier_TimeToDeath_Class(linearInterpolator));
+      PS_Engine.addModifier(new ParticleSystem.ColorModifier_TimeToDeath_Class(startColor, endColor));
+      PS_Engine.addModifier(new ParticleSystem.PositionModifier_EulerItegration_Class());
+
+      return {engine: PS_Engine, emitter: PS_ConeEmitter};
+   }
 }
